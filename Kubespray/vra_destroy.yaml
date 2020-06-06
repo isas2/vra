@@ -1,0 +1,9 @@
+# ~/playbooks/kubespray/vra_destroy.yaml
+- name: Delete inventory
+  hosts: kubespray
+  connection: local
+  tasks:
+    - name: "Delete inventory directory"
+      file:
+        path: inventory/{{ inventoryName }}/
+        state: absent

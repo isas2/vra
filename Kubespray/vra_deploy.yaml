@@ -1,0 +1,62 @@
+# ~/playbooks/kubespray/vra_deploy.yaml
+- name: Deploy K8S cluster
+  hosts: kubespray
+  connection: local
+  roles:
+    - kwoodson.yedit
+  tasks:
+
+    - name: "01. Create new inventory"
+      copy: src=inventory/vra/ dest=inventory/{{ inventoryName }}/
+
+    - name: "02. Create hostlist file"
+      file:
+        path: inventory/{{ inventoryName }}/vra_hosts
+        state: touch
+
+    - name: "03. Write to hostlist first master-node IP"
+      lineinfile:
+        path: inventory/{{ inventoryName }}/vra_hosts
+        line: "{{ ipAddressMn }}"
+
+    - name: "04. Write to hostlist all node IPs"
+      lineinfile:
+        path: inventory/{{ inventoryName }}/vra_hosts
+        line: "{{ item }}"
+      loop: "{{ ipAddressWn }}"
+
+    - name: "05. Create Inventory File"
+      shell: CONFIG_FILE=inventory/{{ inventoryName }}/hosts.yaml python3 contrib/inventory_builder/inventory.py $(cat inventory/{{ inventoryName }}/vra_hosts)
+
+    - name: "06. Enable external cloud provider"
+      yedit:
+        src: inventory/{{ inventoryName }}/group_vars/all/all.yml
+        key: cloud_provider
+        value: "external"
+      when: vcpIstall == true
+
+    - name: "07. Set external cloud provider name"
+      yedit:
+        src: inventory/{{ inventoryName }}/group_vars/all/all.yml
+        key: external_cloud_provider
+        value: "vsphere"
+      when: vcpIstall == true
+
+    - name: "08. Enable vSphere CSI"
+      yedit:
+        src: inventory/{{ inventoryName }}/group_vars/all/vsphere.yml
+        key: vsphere_csi_enabled
+        value: true
+      when: vcpIstall == true
+
+    - name: "09. Set network plugin"
+      yedit:
+        src: inventory/{{ inventoryName }}/group_vars/k8s-cluster/k8s-cluster.yml
+        key: kube_network_plugin
+        value: "{{ netPlugin }}"
+
+    - name: "10. Wait a nodes"
+      shell: sleep 1m
+
+    - name: "11. Start Kubespray deploy"
+      shell: /usr/bin/ansible-playbook -i inventory/{{ inventoryName }}/hosts.yaml --become --become-user=root cluster.yml

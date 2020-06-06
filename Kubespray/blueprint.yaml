@@ -1,0 +1,81 @@
+formatVersion: 1
+name: K8S cluster with Ansible and Kybespray
+version: 1
+inputs:
+  workerNodes:
+    type: integer
+    default: 2
+    minimum: 1
+    maximum: 5
+    title: Number worker nodes
+  nodeSize:
+    type: string
+    enum:
+      - small
+      - medium
+      - large
+    default: small
+    title: Node size
+  vcpIstall:
+    type: boolean
+    default: false
+    title: Install vSphere cloud provider
+  netPlugin:
+    type: string
+    enum:
+      - calico
+      - flannel
+      - weave
+    default: calico
+    title: Select network plugin
+resources:
+  K8S-Install:
+    type: Cloud.Ansible
+    dependsOn:
+      - WorkerVM
+    properties:
+      inventoryFile: ~/hosts
+      username: ansible
+      privateKeyFile: ~/.ssh/id_rsa
+      playbooks:
+        provision:
+          - ~/playbooks/kubespray/vra_deploy.yaml
+        de-provision:
+          - /home/ansible/playbooks/kubespray/vra_destroy.yaml
+      hostVariables: |
+        inventoryName: ${to_lower(join([env.projectName, env.requestedBy, env.deploymentId], '-'))}
+        ipAddressWn: ${resource.WorkerVM.address}
+        ipAddressMn: ${resource.MasterVM[0].address}
+        vcpIstall: ${input.vcpIstall}
+        netPlugin: ${input.netPlugin}
+      osType: linux
+      groups:
+        - kubespray
+      maxConnectionRetries: 10
+      host: '${resource.MasterVM.*}'
+      account: Ansible (vra-ssh)
+  MasterVM:
+    type: Cloud.Machine
+    properties:
+      image: Ubuntu_18
+      flavor: '${input.nodeSize}'
+      customizationSpec: tmp-linux-vra
+      networks:
+        - network: '${resource.NetworkVM.id}'
+          assignment: static
+  WorkerVM:
+    type: Cloud.Machine
+    dependsOn:
+      - MasterVM
+    properties:
+      count: '${input.workerNodes}'
+      image: Ubuntu_18
+      flavor: '${input.nodeSize}'
+      customizationSpec: tmp-linux-vra
+      networks:
+        - network: '${resource.NetworkVM.id}'
+          assignment: static
+  NetworkVM:
+    type: Cloud.vSphere.Network
+    properties:
+      networkType: existing
