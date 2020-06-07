@@ -45,7 +45,7 @@ resources:
       hostVariables: |
         inventoryName: ${to_lower(join([env.projectName, env.requestedBy, env.deploymentId], '-'))}
         ipAddressWn: ${resource.WorkerVM.address}
-        ipAddressMn: ${resource.MasterVM[0].address}
+        ipAddressMn: ${resource.MasterVM.address}
         vcpIstall: ${input.vcpIstall}
         netPlugin: ${input.netPlugin}
       osType: linux
