@@ -1,4 +1,4 @@
-# Kubernetes в vRealize Automation 8
+## Kubernetes в vRealize Automation 8
 
 Материалы, к статье [vRA 8: Ansible + Kubernetes]( https://as.zabedu.ru/linux/cont/vra8-kubespray).
 
@@ -6,7 +6,7 @@
 
 В статье [vRA 8: Ansible + Kubernetes]( https://as.zabedu.ru/linux/cont/vra8-kubespray) описан пример использования интеграции vRA 8 и Ansible для развёртывания кластера Kubernetes с использованием Kubespray. Рассмотрен пример плейбука для настройки и развёртывания кластера, а также блюпринт vRA 8.
 
-# Kubernetes in vRealize Automation 8
+## Kubernetes in vRealize Automation 8
 
 Materials for the article [vRA 8: Ansible + Kubernetes](https://as.zabedu.ru/linux/cont/vra8-kubespray).
 
