@@ -1,4 +1,4 @@
-# Kubernetes â vRealize Automation 8
+# Kubernetes в vRealize Automation 8
 
 Материалы, к статье [vRA 8: Ansible + Kubernetes]( https://as.zabedu.ru/linux/cont/vra8-kubespray).
 
