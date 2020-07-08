@@ -1,0 +1,64 @@
+formatVersion: 1
+name: Polemarch MultiVM
+version: 1
+inputs: {}
+resources:
+  Install_App:
+    type: Custom.Polemarch.Playbook
+    dependsOn:
+      - App_VMs
+      - Install_DB
+    properties:
+      hosts: '${join(resource.App_VMs.address, ",")}'
+      inventoryName: '${join(["vRA", env.deploymentId, "app"], "_")}'
+      playbooks:
+        - provision:
+            - centos_config.yml
+            - soft_install.yml
+      hostVariables: |
+        deploy_server: true
+        server_type: vRA
+        env_type: test
+        install_tomcat: true
+  Install_DB:
+    type: Custom.Polemarch.Playbook
+    dependsOn:
+      - DB_VMs
+    properties:
+      hosts: '${resource.DB_VMs.address}'
+      inventoryName: '${join(["vRA", env.deploymentId, "db"], "_")}'
+      playbooks:
+        - provision:
+            - centos_config.yml
+            - soft_install.yml
+          de_provision:
+            - db_backup.yml
+      hostVariables: |
+        deploy_server: true
+        server_type: vRA
+        env_type: test
+        install_postgresql: true
+        pg_version: 12
+  App_VMs:
+    type: Cloud.Machine
+    properties:
+      count: 3
+      image: CentOS_7
+      flavor: small
+      customizationSpec: tmp-linux-vra
+      networks:
+        - network: '${resource.vSphere_Network.id}'
+          assignment: static
+  DB_VMs:
+    type: Cloud.Machine
+    properties:
+      image: CentOS_7
+      flavor: medium
+      customizationSpec: tmp-linux-vra
+      networks:
+        - network: '${resource.vSphere_Network.id}'
+          assignment: static
+  vSphere_Network:
+    type: Cloud.vSphere.Network
+    properties:
+      networkType: existing

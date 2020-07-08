@@ -1,0 +1,32 @@
+formatVersion: 1
+name: Polemarch SingleVM
+version: 1
+inputs: {}
+resources:
+  Config_VM:
+    type: Custom.Polemarch.Playbook
+    dependsOn:
+      - VM
+    properties:
+      hosts: '${resource.VM.address}'
+      inventoryName: 'vRA_${env.deploymentId}'
+      playbooks:
+        - provision:
+            - centod_config.yml
+      hostVariables: |
+        deploy_server: true
+        server_type: vRA
+        env_type: test
+  VM:
+    type: Cloud.Machine
+    properties:
+      image: CentOS_7
+      flavor: small
+      customizationSpec: tmp-linux-vra
+      networks:
+        - network: '${resource.vSphere_Network.id}'
+          assignment: static
+  vSphere_Network:
+    type: Cloud.vSphere.Network
+    properties:
+      networkType: existing
