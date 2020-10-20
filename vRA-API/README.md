@@ -10,7 +10,19 @@ Materials for the article [vRO: vRA 8 management package](https://as.zabedu.ru/v
 
 This article describes a small set of workflows for managing vRA 8. This package will help you get started quickly developing your own workflows.
 
-## v1.0.1 workflow list
+## v1.1.0
+
+Added workflows:
+* Update project metadata
+* Update project properties
+* Get catalog item
+
+Updated workflows:
+* New project
+* Add REST operations (vRA)
+* Get catalog items
+
+## v1.0.1
 
 Configuration
 * Add REST operations (vRA)
