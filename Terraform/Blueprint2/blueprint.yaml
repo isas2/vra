@@ -1,0 +1,45 @@
+formatVersion: 1
+inputs:
+  vmCount:
+    type: integer
+    minimum: 1
+    maximum: 5
+  vmSize:
+    type: string
+    title: VM size
+    enum:
+      - micro
+      - small
+      - medium
+      - large
+    default: small
+  imageName:
+    type: string
+    enum:
+      - CentOS_7
+      - CentOS_8
+      - Debian_9
+      - Ubuntu_16
+      - Ubuntu_18
+      - Windows_2012
+      - Windows_2016
+    default: CentOS_7
+    description: OS type
+resources:
+  Cloud_Network_1:
+    type: Cloud.Network
+    properties:
+      networkType: existing
+  Cloud_vSphere_Machine_1:
+    type: Cloud.vSphere.Machine
+    properties:
+      count: '${input.vmCount}'
+      image: '${input.imageName}'
+      flavor: '${input.vmSize}'
+      cloudConfig: null
+      name: vra-tf
+      customizationSpec: '${starts_with(input.imageName, "Windows") ? "tmp-windows-vra" : "tmp-linux-vra"}'
+      networks:
+        - network: '${resource.Cloud_Network_1.id}'
+          assignment: static
+
